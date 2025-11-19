@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple HTML Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #ffffff;
+            color: #333333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            flex: 1;
+            width: 100%;
+        }
+        
+        header {
+            background-color: #f8f8f8;
+            padding: 20px 0;
+            text-align: center;
+            border-bottom: 1px solid #eeeeee;
+        }
+        
+        h1 {
+            color: #555555;
+            font-weight: 300;
+            font-size: 2.2rem;
+        }
+        
+        .viewer-container {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .input-section {
+            background-color: #fafafa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #eeeeee;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .section-title {
+            color: #666666;
+            font-weight: 500;
+        }
+        
+        .load-icon {
+            cursor: pointer;
+            color: #888888;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .load-icon:hover {
+            color: #555555;
+        }
+        
+        .load-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .code-input {
+            width: 100%;
+            height: 400px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 15px;
+            line-height: 1.5;
+            resize: vertical;
+            background-color: #ffffff;
+            color: #333333;
+            tab-size: 4;
+        }
+        
+        .button-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-run {
+            background-color: #f0f0f0;
+            color: #555555;
+            border: 1px solid #d0d0d0;
+        }
+        
+        .btn-run:hover {
+            background-color: #e8e8e8;
+        }
+        
+        .btn-clear {
+            background-color: #ff4d4d;
+            color: white;
+        }
+        
+        .btn-clear:hover {
+            background-color: #ff3333;
+        }
+        
+        .preview-section {
+            background-color: #fafafa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #eeeeee;
+            flex: 1;
+        }
+        
+        .preview-frame {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background-color: #ffffff;
+            overflow: auto;
+        }
+        
+        footer {
+            background-color: #f5f5f5;
+            padding: 20px 0;
+            text-align: center;
+            border-top: 1px solid #eeeeee;
+            margin-top: auto;
+        }
+        
+        .footer-text {
+            color: #999999;
+            font-size: 0.9rem;
+        }
+        
+        .heart {
+            color: #ff6b6b;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 1000px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .code-input {
+                height: 300px;
+                font-size: 14px;
+            }
+            
+            .preview-frame {
+                height: 400px;
+            }
+            
+            .button-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 200px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            .code-input {
+                height: 250px;
+                font-size: 13px;
+            }
+            
+            .preview-frame {
+                height: 350px;
+            }
+            
+            .load-icon span {
+                display: none;
+            }
+        }
+    </style>
+    
+    <!-- Import Fira Code font for better code display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Simple HTML Viewer</h1>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="viewer-container">
+            <div class="input-section">
+                <div class="section-header">
+                    <h2 class="section-title">HTML Input</h2>
+                    <div class="load-icon" id="loadIcon" title="Load HTML file">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <span>Load File</span>
+                    </div>
+                </div>
+                <textarea class="code-input" id="htmlInput" placeholder="Enter your HTML code here..."></textarea>
+                
+                <div class="button-container">
+                    <button class="btn btn-run" id="runBtn">Run</button>
+                    <button class="btn btn-clear" id="clearBtn">Clear</button>
+                </div>
+            </div>
+            
+            <div class="preview-section">
+                <h2 class="section-title">Preview</h2>
+                <iframe class="preview-frame" id="preview"></iframe>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p class="footer-text">Made with <span class="heart">❤️</span> by Sauravhhh</p>
+        </div>
+    </footer>
+
+    <script>
+        // Get DOM elements
+        const htmlInput = document.getElementById('htmlInput');
+        const preview = document.getElementById('preview');
+        const runBtn = document.getElementById('runBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const loadIcon = document.getElementById('loadIcon');
+        
+        // Create hidden file input
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.html,.htm';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+        
+        // Function to update preview
+        function updatePreview() {
+            const htmlCode = htmlInput.value;
+            const previewDoc = preview.contentDocument || preview.contentWindow.document;
+            previewDoc.open();
+            previewDoc.write(htmlCode);
+            previewDoc.close();
+        }
+        
+        // Function to clear input and preview
+        function clearAll() {
+            htmlInput.value = '';
+            const previewDoc = preview.contentDocument || preview.contentWindow.document;
+            previewDoc.open();
+            previewDoc.write('');
+            previewDoc.close();
+        }
+        
+        // Function to load file
+        function loadFile() {
+            fileInput.click();
+        }
+        
+        // Event listeners
+        runBtn.addEventListener('click', updatePreview);
+        clearBtn.addEventListener('click', clearAll);
+        loadIcon.addEventListener('click', loadFile);
+        
+        // File input change event
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    htmlInput.value = event.target.result;
+                    updatePreview();
+                };
+                reader.readAsText(file);
+            }
+        });
+        
+        // Initialize with blank preview
+        clearAll();
+        
+        // Add tab support in textarea
+        htmlInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 4;
+            }
+        });
+    </script>
+</body>
+  </html>
