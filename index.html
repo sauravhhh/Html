@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple HTML Viewer</title>
+    <title>SimplHTML - Simple HTML Viewer</title>
     <style>
         * {
             margin: 0;
@@ -35,6 +35,19 @@
             border-bottom: 1px solid #eeeeee;
         }
         
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            color: #666666;
+        }
+        
         h1 {
             color: #555555;
             font-weight: 300;
@@ -48,7 +61,7 @@
             gap: 20px;
         }
         
-        .input-section {
+        .input-section, .preview-section {
             background-color: #fafafa;
             border-radius: 8px;
             padding: 20px;
@@ -102,29 +115,38 @@
         
         .button-container {
             display: flex;
-            gap: 15px;
             margin-top: 20px;
-            justify-content: center;
+            gap: 10px;
+            width: 100%;
         }
         
         .btn {
-            padding: 12px 30px;
+            flex: 1;
+            padding: 18px 20px;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
+            font-size: 20px;
+            font-weight: 600;
             transition: all 0.3s ease;
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
         }
         
         .btn-run {
-            background-color: #f0f0f0;
-            color: #555555;
-            border: 1px solid #d0d0d0;
+            background-color: #2196F3;
+            color: white;
         }
         
         .btn-run:hover {
-            background-color: #e8e8e8;
+            background-color: #1976D2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+        }
+        
+        .btn-run:active {
+            transform: translateY(0);
         }
         
         .btn-clear {
@@ -134,14 +156,12 @@
         
         .btn-clear:hover {
             background-color: #ff3333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 77, 77, 0.3);
         }
         
-        .preview-section {
-            background-color: #fafafa;
-            border-radius: 8px;
-            padding: 20px;
-            border: 1px solid #eeeeee;
-            flex: 1;
+        .btn-clear:active {
+            transform: translateY(0);
         }
         
         .preview-frame {
@@ -151,6 +171,12 @@
             border-radius: 6px;
             background-color: #ffffff;
             overflow: auto;
+            transition: border-color 0.3s ease;
+        }
+        
+        .preview-frame.updating {
+            border-color: #2196F3;
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
         }
         
         footer {
@@ -190,6 +216,15 @@
                 padding: 15px;
             }
             
+            .header-content {
+                gap: 10px;
+            }
+            
+            .header-icon {
+                width: 35px;
+                height: 35px;
+            }
+            
             h1 {
                 font-size: 1.8rem;
             }
@@ -203,17 +238,22 @@
                 height: 400px;
             }
             
-            .button-container {
-                flex-direction: column;
-                align-items: center;
-            }
-            
             .btn {
-                width: 200px;
+                padding: 15px 15px;
+                font-size: 18px;
             }
         }
         
         @media (max-width: 480px) {
+            .header-content {
+                gap: 8px;
+            }
+            
+            .header-icon {
+                width: 30px;
+                height: 30px;
+            }
+            
             h1 {
                 font-size: 1.6rem;
             }
@@ -225,6 +265,15 @@
             
             .preview-frame {
                 height: 350px;
+            }
+            
+            .btn {
+                padding: 12px 12px;
+                font-size: 16px;
+            }
+            
+            .button-container {
+                gap: 8px;
             }
             
             .load-icon span {
@@ -241,7 +290,12 @@
 <body>
     <header>
         <div class="container">
-            <h1>Simple HTML Viewer</h1>
+            <div class="header-content">
+                <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+                <h1>SimplHTML</h1>
+            </div>
         </div>
     </header>
     
@@ -260,13 +314,15 @@
                 <textarea class="code-input" id="htmlInput" placeholder="Enter your HTML code here..."></textarea>
                 
                 <div class="button-container">
-                    <button class="btn btn-run" id="runBtn">Run</button>
                     <button class="btn btn-clear" id="clearBtn">Clear</button>
+                    <button class="btn btn-run" id="runBtn">Run</button>
                 </div>
             </div>
             
             <div class="preview-section">
-                <h2 class="section-title">Preview</h2>
+                <div class="section-header">
+                    <h2 class="section-title">Preview</h2>
+                </div>
                 <iframe class="preview-frame" id="preview"></iframe>
             </div>
         </div>
@@ -297,9 +353,19 @@
         function updatePreview() {
             const htmlCode = htmlInput.value;
             const previewDoc = preview.contentDocument || preview.contentWindow.document;
+            
+            // Add visual feedback that preview is updating
+            preview.classList.add('updating');
+            
+            // Clear the iframe and write new content
             previewDoc.open();
             previewDoc.write(htmlCode);
             previewDoc.close();
+            
+            // Remove visual feedback after a short delay
+            setTimeout(() => {
+                preview.classList.remove('updating');
+            }, 300);
         }
         
         // Function to clear input and preview
@@ -347,6 +413,14 @@
                 this.selectionStart = this.selectionEnd = start + 4;
             }
         });
+        
+        // Add keyboard shortcut for Run (Ctrl+Enter or Cmd+Enter)
+        htmlInput.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                updatePreview();
+            }
+        });
     </script>
 </body>
-  </html>
+                    </html>
